@@ -272,8 +272,8 @@ namespace nemu
 		};
 		
 		public Drive sys = new Drive();
-		public Bitmap display = new Bitmap(80, 60);
-		public Bitmap buffer = new Bitmap(80, 60);
+		public Bitmap display = new Bitmap(320, 240);
+		public Bitmap buffer = new Bitmap(320, 240);
 		public bool wait = false;
 		public int KeyAdress = 1;
 		public int ShiftAdress = 2;
@@ -375,93 +375,73 @@ namespace nemu
 		{
 			if(func == "setLocal")
 			{
-				bool isNum = args[0].All(char.IsDigit);
-				if(isNum)
-				{
-					if(args[1].StartsWith("$"))
-						file.SetAdress(args[0], args[1].Remove(0, 1));
-					else
-					{
-						bool isNum2 = args[1].All(char.IsDigit);
-						if(isNum2)
-							file.SetAdress(args[0], file.GetAdress(args[1]).value);
-						else
-							file.SetAdress(args[0], file.GetAdress(args[1]).value);
-					}
-				}
+				if(args[1].StartsWith("$"))
+					file.SetAdress(args[0], args[1].Remove(0, 1));
 				else
-				{
-					if(args[1].StartsWith("$"))
-						file.SetAdress(args[0], args[1].Remove(0, 1));
-					else
-					{
-						bool isNum2 = args[1].All(char.IsDigit);
-						if(isNum2)
-							file.SetAdress(args[0], file.GetAdress(args[1]).value);
-						else
-							file.SetAdress(args[0], file.GetAdress(args[1]).value);
-					}
-				}
+					file.SetAdress(args[0], GetAdress(args[1]).value);
 			}
 			else if(func == "addLocal")
 			{
-				bool isNum = args[0].All(char.IsDigit);
-				if(isNum)
-				{
-					if(args[1].StartsWith("$"))
-						file.SetAdress(args[0], args[1].Remove(0, 1));
-					else
-					{
-						bool isNum2 = args[1].All(char.IsDigit);
-						if(isNum2)
-							file.SetAdress(args[0], file.GetAdress(args[0]).value + file.GetAdress(args[1]).value);
-						else
-							file.SetAdress(args[0], file.GetAdress(args[0]).value + file.GetAdress(args[1]).value);
-					}
-				}
+				if(args[1].StartsWith("$"))
+					file.SetAdress(args[0], GetAdress(args[0]).value + args[1].Remove(0, 1));
 				else
-				{
-					if(args[1].StartsWith("$"))
-						file.SetAdress(args[0], args[1].Remove(0, 1));
-					else
-					{
-						bool isNum2 = args[1].All(char.IsDigit);
-						if(isNum2)
-							file.SetAdress(args[0], file.GetAdress(args[0]).value + file.GetAdress(args[1]).value);
-						else
-							file.SetAdress(args[0], file.GetAdress(args[0]).value + file.GetAdress(args[1]).value);
-					}
-				}
+					file.SetAdress(args[0], GetAdress(args[0]).value + GetAdress(args[1]).value);
 			}
 			else if(func == "assocLocal")
 			{
-				bool isNum = args[0].All(char.IsDigit);
-				if(isNum)
-				{
-					if(args[1].StartsWith("$"))
-						file.AssocAdress(args[0], args[1].Remove(0, 1));
-					else
-					{
-						bool isNum2 = args[1].All(char.IsDigit);
-						if(isNum2)
-							file.AssocAdress(args[0], file.GetAdress(args[0]).value + file.GetAdress(args[1]).value);
-						else
-							file.AssocAdress(args[0], file.GetAdress(args[0]).value + file.GetAdress(args[1]).value);
-					}
-				}
+				if(args[1].StartsWith("$"))
+					file.AssocAdress(args[0], args[1].Remove(0, 1));
 				else
-				{
-					if(args[1].StartsWith("$"))
-						file.AssocAdress(args[0], args[1].Remove(0, 1));
-					else
-					{
-						bool isNum2 = args[1].All(char.IsDigit);
-						if(isNum2)
-							file.AssocAdress(args[0], file.GetAdress(args[0]).value + file.GetAdress(args[1]).value);
-						else
-							file.AssocAdress(args[0], file.GetAdress(args[0]).value + file.GetAdress(args[1]).value);
-					}
-				}
+					file.AssocAdress(args[0], GetAdress(args[0]).value + GetAdress(args[1]).value);
+				
+			}
+			else if(func == "setGlobal")
+			{
+				if(args[1].StartsWith("$"))
+					SetAdress(args[0], args[1].Remove(0, 1));
+				else
+					SetAdress(args[0], GetAdress(args[1]).value);
+			}
+			else if(func == "addGlobal")
+			{
+				if(args[1].StartsWith("$"))
+					SetAdress(args[0], GetAdress(args[0]).value + args[1].Remove(0, 1));
+				else
+					SetAdress(args[0], GetAdress(args[0]).value + GetAdress(args[1]).value);
+			}
+			else if(func == "assocGlobal")
+			{
+				if(args[1].StartsWith("$"))
+					AssocAdress(args[0], args[1].Remove(0, 1));
+				else
+					AssocAdress(args[0], GetAdress(args[0]).value + GetAdress(args[1]).value);
+				
+			}
+			else if(func == "draw")
+			{
+				int x = 0;
+				int y = 0;
+				Color clr;
+				if(args[0].StartsWith("$"))
+					x = int.Parse(args[0].Remove(0, 1));
+				else
+					x = int.Parse(GetAdress(args[0]).value);
+				if(args[1].StartsWith("$"))
+					y = int.Parse(args[1].Remove(0, 1));
+				else
+					y = int.Parse(GetAdress(args[1]).value);
+				if(args[2].StartsWith("$"))
+					clr = prs(args[2].Remove(0, 1));
+				else
+					clr = prs(GetAdress(args[0]).value);
+				buffer.SetPixel(x, y, clr);
+			}
+			else if(func == "clear")
+				buffer = new Bitmap(320, 240);
+			else if(func == "apply")
+			{
+				display = buffer;
+				this.BackgroundImage = display;
 			}
 		}
 		void MainFormLoad(object sender, EventArgs e)
