@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Linq;
 using System.Timers;
+using System.ComponentModel;
 
 namespace nemu
 {
@@ -16,7 +17,7 @@ namespace nemu
 			new Adress(0, "NotEmulator"),
 			new Adress(1, "Etar125"),
 			new Adress(2, "InDevelop"),
-			new Adress(3, "2781312"),
+			new Adress(3, "9923145"),
 			new Adress(4, ""),
 			new Adress(5, ""),
 			new Adress(6, ""),
@@ -309,56 +310,107 @@ namespace nemu
             return "**qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNMйцукенгшщзхъфывапролджэячсмитьбюёЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁ1234567890!@#$%^&*()_+-={}[];:'\"\\|/,.<>?`~"[num];
         }
 		
-		public Adress GetAdress(string adress)
+		public Adress GetAdress(string adress, List<Adress> LocalData)
 		{
 			bool isDigit = adress.All(char.IsDigit);
-			if(isDigit)
-				foreach(Adress a in GlobalData)
+			if(isDigit) {
+				if(adress.StartsWith("@"))
+					foreach(Adress a in GlobalData)
+						if(a.pos == int.Parse(adress))
+							return a;
+				foreach(Adress a in LocalData)
 					if(a.pos == int.Parse(adress))
 						return a;
-			foreach(Adress aa in GlobalData)
-					if(aa.name == adress)
-						return aa;
+			}
+			else {
+				if(adress.StartsWith("@"))
+					foreach(Adress a in GlobalData)
+						if(a.name == adress)
+							return a;
+				foreach(Adress a in LocalData)
+						if(a.name == adress)
+							return a;
+			}
 			return null;
 		}
 		
-		public void SetAdress(string adress, string value)
+		public void SetAdress(string adress, string value, List<Adress> LocalData)
 		{
 			bool isDigit = adress.All(char.IsDigit);
 			if(isDigit) {
-				foreach(Adress a in GlobalData) {
-					if(a.pos == int.Parse(adress)) {
-						a.value = value;
-						break;
+				if(adress.StartsWith("@")) {
+					foreach(Adress a in GlobalData) {
+						if(a.pos == int.Parse(adress)) {
+							a.value = value;
+							break;
+						}
+					}
+				}
+				else {
+					foreach(Adress a in LocalData) {
+						if(a.pos == int.Parse(adress)) {
+							a.value = value;
+							break;
+						}
 					}
 				}
 			}
 			else {
-				foreach(Adress a in GlobalData) {
-					if(a.name == adress) {
-						a.value = value;
-						break;
+				if(adress.StartsWith("@")) {
+					foreach(Adress a in GlobalData) {
+						if(a.name == adress) {
+							a.value = value;
+							break;
+						}
+					}
+				}
+				else {
+					foreach(Adress a in LocalData) {
+						if(a.name == adress) {
+							a.value = value;
+							break;
+						}
 					}
 				}
 			}
 		}
 		
-		public void AssocAdress(string adress, string value)
+		public void AssocAdress(string adress, string value, List<Adress> LocalData)
 		{
 			bool isDigit = adress.All(char.IsDigit);
 			if(isDigit) {
-				foreach(Adress a in GlobalData) {
-					if(a.pos == int.Parse(adress)) {
-						a.name = value;
-						break;
+				if(adress.StartsWith("@")) {
+					foreach(Adress a in GlobalData) {
+						if(a.pos == int.Parse(adress)) {
+							a.name = value;
+							break;
+						}
+					}
+				}
+				else {
+					foreach(Adress a in LocalData) {
+						if(a.pos == int.Parse(adress)) {
+							a.name = value;
+							break;
+						}
 					}
 				}
 			}
 			else {
-				foreach(Adress a in GlobalData) {
-					if(a.name == adress) {
-						a.name = value;
-						break;
+				if(adress.StartsWith("@")) {
+					foreach(Adress a in GlobalData) {
+						if(a.name == adress) {
+							a.name = value;
+							break;
+						}
+					}
+				}
+				else {
+					foreach(Adress a in LocalData) {
+						if(a.name == adress) {
+							a.name = value;
+							break;
+						}
 					}
 				}
 			}
@@ -371,53 +423,31 @@ namespace nemu
 			InitializeComponent();
 		}
 		
-		public void DoFunction(string func, string[] args, File file)
+		public void DoFunction(string func, string[] args, List<Adress> LocalData)
 		{
-			if(func == "setLocal")
+			if(func == "set")
 			{
 				if(args[1].StartsWith("$"))
-					file.SetAdress(args[0], args[1].Remove(0, 1));
+					SetAdress(args[0], args[1].Remove(0, 1), LocalData);
 				else
-					file.SetAdress(args[0], GetAdress(args[1]).value);
+					SetAdress(args[0], GetAdress(args[1], LocalData).value, LocalData);
 			}
-			else if(func == "addLocal")
+			else if(func == "add")
 			{
 				if(args[1].StartsWith("$"))
-					file.SetAdress(args[0], GetAdress(args[0]).value + args[1].Remove(0, 1));
+					SetAdress(args[0], GetAdress(args[0], LocalData).value + args[1].Remove(0, 1), LocalData);
 				else
-					file.SetAdress(args[0], GetAdress(args[0]).value + GetAdress(args[1]).value);
+					SetAdress(args[0], GetAdress(args[0], LocalData).value + GetAdress(args[1], LocalData).value, LocalData);
 			}
-			else if(func == "assocLocal")
+			else if(func == "assoc")
 			{
 				if(args[1].StartsWith("$"))
-					file.AssocAdress(args[0], args[1].Remove(0, 1));
+					AssocAdress(args[0], args[1].Remove(0, 1), LocalData);
 				else
-					file.AssocAdress(args[0], GetAdress(args[0]).value + GetAdress(args[1]).value);
+					AssocAdress(args[0], GetAdress(args[0], LocalData).value + GetAdress(args[1], LocalData).value, LocalData);
 				
 			}
-			else if(func == "setGlobal")
-			{
-				if(args[1].StartsWith("$"))
-					SetAdress(args[0], args[1].Remove(0, 1));
-				else
-					SetAdress(args[0], GetAdress(args[1]).value);
-			}
-			else if(func == "addGlobal")
-			{
-				if(args[1].StartsWith("$"))
-					SetAdress(args[0], GetAdress(args[0]).value + args[1].Remove(0, 1));
-				else
-					SetAdress(args[0], GetAdress(args[0]).value + GetAdress(args[1]).value);
-			}
-			else if(func == "assocGlobal")
-			{
-				if(args[1].StartsWith("$"))
-					AssocAdress(args[0], args[1].Remove(0, 1));
-				else
-					AssocAdress(args[0], GetAdress(args[0]).value + GetAdress(args[1]).value);
-				
-			}
-			else if(func == "draw")
+			else if(func == "draw") // draw(x,y)
 			{
 				int x = 0;
 				int y = 0;
@@ -425,15 +455,15 @@ namespace nemu
 				if(args[0].StartsWith("$"))
 					x = int.Parse(args[0].Remove(0, 1));
 				else
-					x = int.Parse(GetAdress(args[0]).value);
+					x = int.Parse(GetAdress(args[0], LocalData).value);
 				if(args[1].StartsWith("$"))
 					y = int.Parse(args[1].Remove(0, 1));
 				else
-					y = int.Parse(GetAdress(args[1]).value);
+					y = int.Parse(GetAdress(args[1], LocalData).value);
 				if(args[2].StartsWith("$"))
 					clr = prs(args[2].Remove(0, 1));
 				else
-					clr = prs(GetAdress(args[0]).value);
+					clr = prs(GetAdress(args[0], LocalData).value);
 				buffer.SetPixel(x, y, clr);
 			}
 			else if(func == "clear")
@@ -441,12 +471,87 @@ namespace nemu
 			else if(func == "apply")
 			{
 				display = buffer;
-				this.BackgroundImage = display;
+				pictureBox1.Image = display;
 			}
 		}
+		
+		public void Do(File file)
+		{
+			string[] code = file.data.ToArray();
+			for(int i = 0; i < code.Length; i++)
+			{
+				if(code[i].StartsWith(";")) continue;
+				if(code[i].StartsWith("goto "))
+				{
+					string label = code[i].Remove(0, 5);
+					for(int a = 0; a < code.Length; a++) {
+						if(code[a] == "label " + label) {
+							i = a;
+							break;
+						}
+					}
+				}
+				else if(!code[i].StartsWith("label "))
+				{
+					string function;
+					List<string> args = new List<string>{};
+					bool finish = false;
+					for(int a = 0; a < code[i].Length; a++)
+					{
+						if(code[i][a] == '(')
+						{
+							function = code[i].Substring(0, a);
+							bool ina = false;
+							int last = a + 1;
+							string result = "";
+							for(int b = a + 1; b < code[i].Length; b++)
+							{
+								if(code[i][b] == '\\')
+								{
+									result += code[i][b + 1];
+									b += 2;
+								}
+								else if(code[i][b] == '"')
+								{
+									if(ina) ina = false;
+									else ina = true;
+								}
+								else if(code[i][b] == ',' && !ina) { args.Add(result); result = ""; }
+								else if(code[i][b] == ')' && !ina)
+								{
+									args.Add(result); result = "";
+									//MessageBox.Show(string.Join("\n", args.ToArray()));
+									DoFunction(function, args.ToArray(), file.LocalData);
+									args.Clear();
+									finish = true;
+									break;
+								}
+								else
+									result += code[i][b];
+							}
+						}
+						if(finish)
+						{
+							finish = false;
+							break;
+						}
+					}
+				}
+			}
+		}
+		
 		void MainFormLoad(object sender, EventArgs e)
 		{
-	
+			sys.Load("disk.txt");
+			BackgroundWorker bw = new BackgroundWorker();
+			bw.DoWork += (object ss, DoWorkEventArgs d) =>
+			{
+				try { Do(sys.GetByName("sys").GetByName("main")); }
+				catch (Exception ex) {
+					MessageBox.Show(ex.Source + "\n-=-=-=-=-=-=-=-=-=-\n" + ex.Message + "\n-=-=-=-=-=-=-=-=-=-\n" + ex.StackTrace + "\n-=-=-=-=-=-=-=-=-=-\n" + ex.TargetSite);
+				}
+			};
+			bw.RunWorkerAsync();
 		}
 		void MainFormKeyDown(object sender, KeyEventArgs e)
 		{
@@ -867,66 +972,6 @@ namespace nemu
 		{
 			this.name = name;
 			this.data = data;
-		}
-		
-		public Adress GetAdress(string adress)
-		{
-			bool isDigit = adress.All(char.IsDigit);
-			if(isDigit)
-				foreach(Adress a in LocalData)
-					if(a.pos == int.Parse(adress))
-						return a;
-			foreach(Adress aa in LocalData)
-					if(aa.name == adress)
-						return aa;
-			return null;
-		}
-		
-		public void SetAdress(string adress, string value)
-		{
-			bool isDigit = adress.All(char.IsDigit);
-			if(isDigit) {
-				foreach(Adress a in LocalData) {
-					if(a.pos == int.Parse(adress)) {
-						a.value = value;
-						break;
-					}
-				}
-			}
-			else {
-				foreach(Adress a in LocalData) {
-					if(a.name == adress) {
-						a.value = value;
-						break;
-					}
-				}
-			}
-		}
-		
-		public void AssocAdress(string adress, string value)
-		{
-			bool isDigit = adress.All(char.IsDigit);
-			if(isDigit) {
-				foreach(Adress a in LocalData) {
-					if(a.pos == int.Parse(adress)) {
-						a.name = value;
-						break;
-					}
-				}
-			}
-			else {
-				foreach(Adress a in LocalData) {
-					if(a.name == adress) {
-						a.name = value;
-						break;
-					}
-				}
-			}
-		}
-		
-		public void Do()
-		{
-			
 		}
 	}
 	public class Adress
