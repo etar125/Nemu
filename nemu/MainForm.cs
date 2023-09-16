@@ -17,7 +17,7 @@ namespace nemu
 			new Adress(0, "NotEmulator"),
 			new Adress(1, "Etar125"),
 			new Adress(2, "InDevelop"),
-			new Adress(3, "9923145"),
+			new Adress(3, "16231449"),
 			new Adress(4, ""),
 			new Adress(5, ""),
 			new Adress(6, ""),
@@ -472,6 +472,68 @@ namespace nemu
 			{
 				display = buffer;
 				pictureBox1.Image = display;
+			}
+			else if(func == "createFile")
+			{
+				string folder = "";
+				string file = "";
+				if(args[0].StartsWith("$")) folder = args[0].Remove(0, 1);
+				else folder = GetAdress(args[0], LocalData).value;
+				if(args[1].StartsWith("$")) file = args[1].Remove(0, 1);
+				else file = GetAdress(args[1], LocalData).value;
+				sys.GetByName(folder).data.Add(new File(file, new List<string>{}));
+			}
+			else if(func == "deleteFile")
+			{
+				string folder = "";
+				string file = "";
+				if(args[0].StartsWith("$")) folder = args[0].Remove(0, 1);
+				else folder = GetAdress(args[0], LocalData).value;
+				if(args[1].StartsWith("$")) file = args[1].Remove(0, 1);
+				else file = GetAdress(args[1], LocalData).value;
+				sys.GetByName(folder).RemoveByName(file);
+			}
+			else if(func == "moveFile")
+			{
+				string folder = "";
+				string file = "";
+				string folder2 = "";
+				if(args[0].StartsWith("$")) folder = args[0].Remove(0, 1);
+				else folder = GetAdress(args[0], LocalData).value;
+				if(args[1].StartsWith("$")) file = args[1].Remove(0, 1);
+				else file = GetAdress(args[1], LocalData).value;
+				if(args[2].StartsWith("$")) folder2 = args[2].Remove(0, 1);
+				else folder2 = GetAdress(args[2], LocalData).value;
+				File a = sys.GetByName(folder).GetByName(file);
+				sys.GetByName(folder).RemoveByName(file);
+				sys.GetByName(folder2).data.Add(a);
+			}
+			else if(func == "copyFile")
+			{
+				string folder = "";
+				string file = "";
+				string folder2 = "";
+				if(args[0].StartsWith("$")) folder = args[0].Remove(0, 1);
+				else folder = GetAdress(args[0], LocalData).value;
+				if(args[1].StartsWith("$")) file = args[1].Remove(0, 1);
+				else file = GetAdress(args[1], LocalData).value;
+				if(args[2].StartsWith("$")) folder2 = args[2].Remove(0, 1);
+				else folder2 = GetAdress(args[2], LocalData).value;
+				File a = sys.GetByName(folder).GetByName(file);
+				sys.GetByName(folder2).data.Add(a);
+			}
+			else if(func == "renameFile")
+			{
+				string folder = "";
+				string file = "";
+				string folder2 = "";
+				if(args[0].StartsWith("$")) folder = args[0].Remove(0, 1);
+				else folder = GetAdress(args[0], LocalData).value;
+				if(args[1].StartsWith("$")) file = args[1].Remove(0, 1);
+				else file = GetAdress(args[1], LocalData).value;
+				if(args[2].StartsWith("$")) folder2 = args[2].Remove(0, 1);
+				else folder2 = GetAdress(args[2], LocalData).value;
+				sys.GetByName(folder).GetByName(file).name = folder2;
 			}
 		}
 		
