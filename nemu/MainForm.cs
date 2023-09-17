@@ -17,7 +17,7 @@ namespace nemu
 			new Adress(0, "NotEmulator"),
 			new Adress(1, "Etar125"),
 			new Adress(2, "InDevelop"),
-			new Adress(3, "16231449"),
+			new Adress(3, "17231726"),
 			new Adress(4, ""),
 			new Adress(5, ""),
 			new Adress(6, ""),
@@ -534,6 +534,80 @@ namespace nemu
 				if(args[2].StartsWith("$")) folder2 = args[2].Remove(0, 1);
 				else folder2 = GetAdress(args[2], LocalData).value;
 				sys.GetByName(folder).GetByName(file).name = folder2;
+			}
+			else if(func == "addLineToFile")
+			{
+				string folder = "";
+				string file = "";
+				string folder2 = "";
+				if(args[0].StartsWith("$")) folder = args[0].Remove(0, 1);
+				else folder = GetAdress(args[0], LocalData).value;
+				if(args[1].StartsWith("$")) file = args[1].Remove(0, 1);
+				else file = GetAdress(args[1], LocalData).value;
+				if(args[2].StartsWith("$")) folder2 = args[2].Remove(0, 1);
+				else folder2 = GetAdress(args[2], LocalData).value;
+				sys.GetByName(folder).GetByName(file).data.Add(folder2);
+			}
+			else if(func == "insertLineToFile")
+			{
+				string folder = "";
+				string file = "";
+				string folder2 = "";
+				int line = 0;
+				if(args[0].StartsWith("$")) folder = args[0].Remove(0, 1);
+				else folder = GetAdress(args[0], LocalData).value;
+				if(args[1].StartsWith("$")) file = args[1].Remove(0, 1);
+				else file = GetAdress(args[1], LocalData).value;
+				if(args[2].StartsWith("$")) folder2 = args[2].Remove(0, 1);
+				else folder2 = GetAdress(args[2], LocalData).value;
+				if(args[3].StartsWith("$")) line = int.Parse(args[3].Remove(0, 1));
+				else line = int.Parse(GetAdress(args[3], LocalData).value);
+				sys.GetByName(folder).GetByName(file).data.Insert(line, folder2);
+			}
+			else if(func == "deleteLineFromFile")
+			{
+				string folder = "";
+				string file = "";
+				int line = 0;
+				if(args[0].StartsWith("$")) folder = args[0].Remove(0, 1);
+				else folder = GetAdress(args[0], LocalData).value;
+				if(args[1].StartsWith("$")) file = args[1].Remove(0, 1);
+				else file = GetAdress(args[1], LocalData).value;
+				if(args[2].StartsWith("$")) line = int.Parse(args[2].Remove(0, 1))b;
+				else line = int.Parse(GetAdress(args[2], LocalData).value);
+				sys.GetByName(folder).GetByName(file).data.RemoveAt(line);
+			}
+			else if(func == "clearFile")
+			{
+				string folder = "";
+				string file = "";
+				if(args[0].StartsWith("$")) folder = args[0].Remove(0, 1);
+				else folder = GetAdress(args[0], LocalData).value;
+				if(args[1].StartsWith("$")) file = args[1].Remove(0, 1);
+				else file = GetAdress(args[1], LocalData).value;
+				sys.GetByName(folder).GetByName(file).data.Clear();
+			}
+			else if(func == "getFileLength")
+			{
+				string folder = "";
+				string file = "";
+				string adress = args[2];
+				if(args[0].StartsWith("$")) folder = args[0].Remove(0, 1);
+				else folder = GetAdress(args[0], LocalData).value;
+				if(args[1].StartsWith("$")) file = args[1].Remove(0, 1);
+				else file = GetAdress(args[1], LocalData).value;
+				SetAdress(adress, sys.GetByName(folder).GetByName(file).data.ToArray().Length.ToString(), LocalData);
+			}
+			else if(func == "getFileLongLength")
+			{
+				string folder = "";
+				string file = "";
+				string adress = args[2];
+				if(args[0].StartsWith("$")) folder = args[0].Remove(0, 1);
+				else folder = GetAdress(args[0], LocalData).value;
+				if(args[1].StartsWith("$")) file = args[1].Remove(0, 1);
+				else file = GetAdress(args[1], LocalData).value;
+				SetAdress(adress, sys.GetByName(folder).GetByName(file).data.ToArray().LongLength.ToString(), LocalData);
 			}
 		}
 		
