@@ -17,7 +17,7 @@ namespace nemu
 			new Adress(0, "NotEmulator"),
 			new Adress(1, "Etar125"),
 			new Adress(2, "InDevelop"),
-			new Adress(3, "17231759"),
+			new Adress(3, "309136"),
 			new Adress(4, ""),
 			new Adress(5, ""),
 			new Adress(6, ""),
@@ -573,7 +573,7 @@ namespace nemu
 				else folder = GetAdress(args[0], LocalData).value;
 				if(args[1].StartsWith("$")) file = args[1].Remove(0, 1);
 				else file = GetAdress(args[1], LocalData).value;
-				if(args[2].StartsWith("$")) line = int.Parse(args[2].Remove(0, 1))b;
+				if(args[2].StartsWith("$")) line = int.Parse(args[2].Remove(0, 1));
 				else line = int.Parse(GetAdress(args[2], LocalData).value);
 				sys.GetByName(folder).GetByName(file).data.RemoveAt(line);
 			}
@@ -669,7 +669,11 @@ namespace nemu
 				result += a.data[a.data.Count - 1].name + "|";
 				SetAdress(folder2, result, LocalData);
 			}
+			else if(func == "save")
+				sys.Save("disk.txt");
 		}
+		
+		public string miscdata = "";
 		
 		public void Do(File file)
 		{
@@ -689,6 +693,7 @@ namespace nemu
 				}
 				else if(!code[i].StartsWith("label "))
 				{
+					miscdata = "File: " + file.name + "\nLine: " + i + "\nText: " + code[i];
 					string function;
 					List<string> args = new List<string>{};
 					bool finish = false;
@@ -718,6 +723,7 @@ namespace nemu
 									args.Add(result); result = "";
 									//MessageBox.Show(string.Join("\n", args.ToArray()));
 									DoFunction(function, args.ToArray(), file.LocalData);
+									
 									args.Clear();
 									finish = true;
 									break;
@@ -744,7 +750,7 @@ namespace nemu
 			{
 				try { Do(sys.GetByName("sys").GetByName("main")); }
 				catch (Exception ex) {
-					MessageBox.Show(ex.Source + "\n-=-=-=-=-=-=-=-=-=-\n" + ex.Message + "\n-=-=-=-=-=-=-=-=-=-\n" + ex.StackTrace + "\n-=-=-=-=-=-=-=-=-=-\n" + ex.TargetSite);
+					MessageBox.Show(ex.Source + "\n-=-=-=-=-=-=-=-=-=-\n" + ex.Message + "\n-=-=-=-=-=-=-=-=-=-\n" + ex.StackTrace + "\n-=-=-=-=-=-=-=-=-=-\n" + ex.TargetSite + "\n-=-=-=-=-=-=-=-=-=-\n" + miscdata);
 				}
 			};
 			bw.RunWorkerAsync();
@@ -845,7 +851,7 @@ namespace nemu
 									break;
 								}
 							}
-							logs.Add("File first line: " + fil.data[0]);
+							//logs.Add("File first line: " + fil.data[0]);
 						}
 						else if(cn[b] == "end")
 						{
