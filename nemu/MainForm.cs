@@ -17,7 +17,7 @@ namespace nemu
 			new Adress(0, "NotEmulator"),
 			new Adress(1, "Etar125"),
 			new Adress(2, "InDevelop"),
-			new Adress(3, "309136"),
+			new Adress(3, "310223"),
 			new Adress(4, ""),
 			new Adress(5, ""),
 			new Adress(6, ""),
@@ -671,6 +671,47 @@ namespace nemu
 			}
 			else if(func == "save")
 				sys.Save("disk.txt");
+			else if(func == "runFile")
+			{
+				string folder = "";
+				string file = "";
+				if(args[0].StartsWith("$")) folder = args[0].Remove(0, 1);
+				else folder = GetAdress(args[0], LocalData).value;
+				if(args[1].StartsWith("$")) file = args[1].Remove(0, 1);
+				else file = GetAdress(args[1], LocalData).value;
+				File f = sys.GetByName(folder).GetByName(file);
+				if(args.Length > 2)
+					for(int i = 2; i < args.Length; i++)
+						f.LocalData[0].value = args[i];
+				Do(f);
+			}
+			else if(func == "runFileAsync")
+			{
+				string folder = "";
+				string file = "";
+				if(args[0].StartsWith("$")) folder = args[0].Remove(0, 1);
+				else folder = GetAdress(args[0], LocalData).value;
+				if(args[1].StartsWith("$")) file = args[1].Remove(0, 1);
+				else file = GetAdress(args[1], LocalData).value;
+				File f = sys.GetByName(folder).GetByName(file);
+				if(args.Length > 2)
+					for(int i = 2; i < args.Length; i++)
+						f.LocalData[0].value = args[i];
+				Do(f);
+				BackgroundWorker bw = new BackgroundWorker();
+				bw.DoWork += (object ss, DoWorkEventArgs d) =>
+				{
+					Do(f);
+				};
+				bw.RunWorkerCompleted += (object sender, RunWorkerCompletedEventArgs e) =>
+				{
+					Exception ex = e.Error;
+					if(ex != null)
+						MessageBox.Show(ex.Source + "\n-=-=-=-=-=-=-=-=-=-\n" + ex.Message + "\n-=-=-=-=-=-=-=-=-=-\n" + ex.StackTrace + "\n-=-=-=-=-=-=-=-=-=-\n" + ex.TargetSite + "\n-=-=-=-=-=-=-=-=-=-\n" + miscdata);
+					return;
+				};
+				bw.RunWorkerAsync();
+			}
 		}
 		
 		public string miscdata = "";
