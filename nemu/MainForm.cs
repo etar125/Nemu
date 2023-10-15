@@ -17,7 +17,7 @@ namespace nemu
 			new Adress(0, "NotEmulator"),
 			new Adress(1, "Etar125"),
 			new Adress(2, "InDevelop"),
-			new Adress(3, "310223"),
+			new Adress(3, "151023859"),
 			new Adress(4, ""),
 			new Adress(5, ""),
 			new Adress(6, ""),
@@ -310,6 +310,18 @@ namespace nemu
             return "**qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNMйцукенгшщзхъфывапролджэячсмитьбюёЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁ1234567890!@#$%^&*()_+-={}[];:'\"\\|/,.<>?`~"[num];
         }
 		
+		public Bitmap Zoom(Image bmp, Size size)
+        {
+            var result = new Bitmap(size.Width, size.Height);
+            using(var gr = Graphics.FromImage(result))
+            {
+                gr.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                gr.DrawImage(bmp, 0, 0, size.Width, size.Height);
+            }
+ 
+            return result;
+        }
+		
 		public Adress GetAdress(string adress, List<Adress> LocalData)
 		{
 			bool isDigit = adress.All(char.IsDigit);
@@ -423,6 +435,8 @@ namespace nemu
 			InitializeComponent();
 		}
 		
+		public bool zoomli = false;
+		
 		public void DoFunction(string func, string[] args, List<Adress> LocalData)
 		{
 			if(func == "set")
@@ -471,7 +485,10 @@ namespace nemu
 			else if(func == "apply")
 			{
 				display = buffer;
-				pictureBox1.Image = display;
+				if(!zoomli)
+					pictureBox1.Image = display;
+				else
+					pictureBox1.Image = Zoom(display, pictureBox1.Size);
 			}
 			else if(func == "createFile")
 			{
@@ -728,6 +745,7 @@ namespace nemu
 					for(int a = 0; a < code.Length; a++) {
 						if(code[a] == "label " + label) {
 							i = a;
+							
 							break;
 						}
 					}
@@ -799,6 +817,48 @@ namespace nemu
 		void MainFormKeyDown(object sender, KeyEventArgs e)
 		{
 	
+		}
+		void ИзображениеToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			imgoptpanel.Visible = true;
+		}
+		void Button1Click(object sender, EventArgs e)
+		{
+			imgoptpanel.Visible = false;
+		}
+		void Button2Click(object sender, EventArgs e)
+		{
+			switch(comboBox1.Text)
+			{
+				case "Растягивать":
+					zoomli = false;
+					pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+					break;
+				case "По центру":
+					zoomli = false;
+					pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage;
+					break;
+				case "Ничего не делать":
+					zoomli = false;
+					pictureBox1.SizeMode = PictureBoxSizeMode.Normal;
+					break;
+				case "Маштабировать":
+					zoomli = true;
+					pictureBox1.SizeMode = PictureBoxSizeMode.Normal;
+					break;
+			}
+			this.Size = new Size(int.Parse(numericUpDown1.Value.ToString()), int.Parse(numericUpDown2.Value.ToString()));
+			if(zoomli)
+				pictureBox1.Image = Zoom(display, pictureBox1.Size);
+			else
+				pictureBox1.Image = display;
+			imgoptpanel.Visible = false;
+		}
+		void Button3Click(object sender, EventArgs e)
+		{
+			numericUpDown1.Value = 320;
+			numericUpDown2.Value = 240;
+			comboBox1.Text = "Ничего не делать";
 		}
 	}
 	public class Drive
