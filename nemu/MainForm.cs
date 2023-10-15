@@ -17,7 +17,7 @@ namespace nemu
 			new Adress(0, "NotEmulator"),
 			new Adress(1, "Etar125"),
 			new Adress(2, "InDevelop"),
-			new Adress(3, "151023859"),
+			new Adress(3, "1510231513"),
 			new Adress(4, ""),
 			new Adress(5, ""),
 			new Adress(6, ""),
@@ -803,7 +803,7 @@ namespace nemu
 		
 		void MainFormLoad(object sender, EventArgs e)
 		{
-			sys.Load("disk.txt");
+			f.richTextBox1.Text = string.Join("\n", sys.Load("disk.txt")) + "\n";
 			BackgroundWorker bw = new BackgroundWorker();
 			bw.DoWork += (object ss, DoWorkEventArgs d) =>
 			{
@@ -859,6 +859,13 @@ namespace nemu
 			numericUpDown1.Value = 320;
 			numericUpDown2.Value = 240;
 			comboBox1.Text = "Ничего не делать";
+		}
+		
+		public LogsForm f = new LogsForm();
+		
+		void LogsToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			f.Show();
 		}
 	}
 	public class Drive
@@ -916,60 +923,61 @@ namespace nemu
 			System.IO.File.WriteAllLines(file, result.ToArray());
 		}
 		
-		public void Load(string file)
+		public string[] Load(string file)
 		{
 			try
 			{
-			List<string> logs = new List<string>{};
-			this.name = "";
-			this.data = new List<Directory> {};
-			string[] cn = System.IO.File.ReadAllLines(file);
-			this.name = cn[0];
-			logs.Add("Drive name: " + name);
-			for(int a = 2; a < cn.Length; a++)
-			{
-				if(cn[a].StartsWith("&"))
+				List<string> logs = new List<string>{};
+				this.name = "";
+				this.data = new List<Directory> {};
+				string[] cn = System.IO.File.ReadAllLines(file);
+				this.name = cn[0];
+				logs.Add("Drive name: " + name);
+				for(int a = 2; a < cn.Length; a++)
 				{
-					Directory dir = new Directory();
-					dir.name = cn[a].Remove(0, 1);
-					logs.Add("Directory create: " + dir.name);
-					for(int b = a + 1; b < cn.Length; b++)
+					if(cn[a].StartsWith("&"))
 					{
-						if(cn[b].StartsWith("?"))
+						Directory dir = new Directory();
+						dir.name = cn[a].Remove(0, 1);
+						logs.Add("Создана папка: " + dir.name);
+						for(int b = a + 1; b < cn.Length; b++)
 						{
-							File fil = new File();
-							fil.name = cn[b].Remove(0, 1);
-							logs.Add("File create: " + fil.name);
-							for(int c = b + 1; c < cn.Length; c++)
+							if(cn[b].StartsWith("?"))
 							{
-								if(cn[c] != "end")
-									fil.data.Add(cn[c]);
-								else
+								File fil = new File();
+								fil.name = cn[b].Remove(0, 1);
+								logs.Add("Создан файл: " + fil.name);
+								for(int c = b + 1; c < cn.Length; c++)
 								{
-									dir.data.Add(fil);
-									logs.Add("File end");
-									b = c;
-									break;
+									if(cn[c] != "end") fil.data.Add(cn[c]);
+									else
+									{
+										dir.data.Add(fil);
+										logs.Add("Конец файла");
+										b = c;
+										break;
+									}
 								}
+								string code = (fil.data.Count * 1512 / 961).ToString();
+								logs.Add("Код файла: " + code);
 							}
-							//logs.Add("File first line: " + fil.data[0]);
-						}
-						else if(cn[b] == "end")
-						{
-							this.data.Add(dir);
-							logs.Add("Directory end");
-							a = b;
-							break;
+							else if(cn[b] == "end")
+							{
+								this.data.Add(dir);
+								logs.Add("Конец папки");
+								a = b;
+								break;
+							}
 						}
 					}
 				}
-			}
-			System.IO.File.WriteAllLines("logs.txt", logs.ToArray());
+				return logs.ToArray();
 			}
 			catch(Exception e)
 			{
 				MessageBox.Show("Message: " + e.Message + "\nFull: " + e.StackTrace);
 			}
+			return null;
 		}
 	}
 	public class Directory

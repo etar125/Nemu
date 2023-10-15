@@ -84,7 +84,7 @@ namespace nemu
 			this.contextMenuStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Table;
 			this.contextMenuStrip1.Name = "contextMenuStrip1";
 			this.contextMenuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-			this.contextMenuStrip1.Size = new System.Drawing.Size(172, 52);
+			this.contextMenuStrip1.Size = new System.Drawing.Size(172, 74);
 			// 
 			// logsToolStripMenuItem
 			// 
@@ -93,6 +93,7 @@ namespace nemu
 			this.logsToolStripMenuItem.Name = "logsToolStripMenuItem";
 			this.logsToolStripMenuItem.Size = new System.Drawing.Size(171, 24);
 			this.logsToolStripMenuItem.Text = "Логи";
+			this.logsToolStripMenuItem.Click += new System.EventHandler(this.LogsToolStripMenuItemClick);
 			// 
 			// изображениеToolStripMenuItem
 			// 
